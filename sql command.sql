@@ -1,42 +1,25 @@
--- Snowflake Connection Verification
-
 SELECT CURRENT_USER();
-
 SELECT CURRENT_ROLE();
-
 SELECT CURRENT_WAREHOUSE();
-
 SELECT CURRENT_DATABASE();
-
 SELECT CURRENT_SCHEMA();
--- Create Database
+
 
 CREATE OR REPLACE DATABASE UNIVERSITY_DB;
 
--- Use Database
-
 USE DATABASE UNIVERSITY_DB;
-
--- Create Schema
 
 CREATE OR REPLACE SCHEMA ACADEMIC_SCHEMA;
 
--- Use Schema
-
 USE SCHEMA ACADEMIC_SCHEMA;
-
--- Create Warehouse
 
 CREATE OR REPLACE WAREHOUSE CAMPUS_WH
 WAREHOUSE_SIZE = 'XSMALL'
 AUTO_SUSPEND = 60
 AUTO_RESUME = TRUE;
 
--- Use Warehouse
-
 USE WAREHOUSE CAMPUS_WH;
 
--- Create Student Table
 
 CREATE OR REPLACE TABLE LEARNERS (
     LEARNER_ID INT,
@@ -45,47 +28,36 @@ CREATE OR REPLACE TABLE LEARNERS (
     SCORE INT
 );
 
--- Create Stage
-
 CREATE OR REPLACE STAGE DATA_STAGE;
 
--- Verify Objects
 
 SHOW DATABASES;
 SHOW SCHEMAS;
 SHOW WAREHOUSES;
 SHOW TABLES;
 SHOW STAGES;
--- Insert Records
+
 
 INSERT INTO LEARNERS VALUES
-(201,'Aarav','CSE',82),
-(202,'Priya','ECE',91),
-(203,'Kunal','IT',76);
-
--- Read Records
+(201, 'Aarav', 'CSE', 82),
+(202, 'Priya', 'ECE', 91),
+(203, 'Kunal', 'IT', 76);
 
 SELECT * FROM LEARNERS;
 
--- Update Record
 
 UPDATE LEARNERS
 SET SCORE = 94
 WHERE LEARNER_ID = 202;
 
--- Verify Update
-
 SELECT * FROM LEARNERS;
 
--- Delete Record
 
 DELETE FROM LEARNERS
 WHERE LEARNER_ID = 203;
 
--- Verify Delete
-
 SELECT * FROM LEARNERS;
--- Create Table for CSV Dataset
+
 
 CREATE OR REPLACE TABLE EXAM_PERFORMANCE (
     GENDER STRING,
@@ -98,34 +70,26 @@ CREATE OR REPLACE TABLE EXAM_PERFORMANCE (
     WRITING_SCORE INT
 );
 
--- Verify Uploaded File in Stage
-
 LIST @DATA_STAGE;
 
--- Create File Format
 
 CREATE OR REPLACE FILE FORMAT EXAM_CSV_FORMAT
 TYPE = CSV
 SKIP_HEADER = 1
 FIELD_OPTIONALLY_ENCLOSED_BY = '"';
 
--- Load Data from Stage into Table
 
 COPY INTO EXAM_PERFORMANCE
 FROM @DATA_STAGE/StudentsPerformance.csv
 FILE_FORMAT = EXAM_CSV_FORMAT;
 
--- Verify Data Loaded
-
 SELECT COUNT(*) AS TOTAL_RECORDS
 FROM EXAM_PERFORMANCE;
-
--- Display Sample Records
 
 SELECT *
 FROM EXAM_PERFORMANCE
 LIMIT 10;
--- Create Table for Time Travel Demonstration
+
 
 CREATE OR REPLACE TABLE STAFF (
     STAFF_ID INT,
@@ -133,18 +97,13 @@ CREATE OR REPLACE TABLE STAFF (
     SALARY INT
 );
 
--- Insert Sample Records
-
 INSERT INTO STAFF VALUES
-(1,'Arjun',52000),
-(2,'Meera',61000),
-(3,'Vivek',57000);
-
--- View Current Data
+(1, 'Arjun', 52000),
+(2, 'Meera', 61000),
+(3, 'Vivek', 57000);
 
 SELECT * FROM STAFF;
 
--- Update and Delete Operations
 
 UPDATE STAFF
 SET SALARY = 72000
@@ -153,23 +112,18 @@ WHERE STAFF_ID = 1;
 DELETE FROM STAFF
 WHERE STAFF_ID = 3;
 
--- View Current State
-
 SELECT * FROM STAFF;
 
--- Query Historical Version Using Time Travel
 
 SELECT *
 FROM STAFF
 AT(OFFSET => -60);
--- Recover Deleted Record Using Time Travel
+
 
 INSERT INTO STAFF
 SELECT *
 FROM STAFF
 AT(OFFSET => -60)
 WHERE STAFF_ID = 3;
-
--- Verify Recovery
 
 SELECT * FROM STAFF;
